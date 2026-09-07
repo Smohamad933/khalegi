@@ -13,7 +13,7 @@ $theatre     = media_url(setting('theatre_art'));
 $birdL       = media_url(setting('bird_left'));
 $birdR       = media_url(setting('bird_right'));
 $poster      = media_url(setting('poster'));
-$ticket      = setting('ticket_url');
+$ticket      = setting('show_ticket', '1') === '1' ? setting('ticket_url') : '';
 $about       = lines(setting('about'));
 $hasTracks   = !empty($tracks);
 $hasGallery  = !empty($gallery);
@@ -336,7 +336,10 @@ $posterMobile = ($heroMode === 'poster' && media_url(setting('hero_mobile'))) ? 
       <?php if (setting('website')): ?><a href="<?= e(setting('website')) ?>" target="_blank" rel="noopener" aria-label="وب‌سایت"><svg><use href="#icon-globe"/></svg></a><?php endif; ?>
     </div>
     <?php if (setting('footer_note')): ?><p class="footer__note"><?= e(setting('footer_note')) ?></p><?php endif; ?>
-    <a class="footer__admin" href="<?= e(url('admin/')) ?>">ورود مدیریت</a>
+    <div class="footer__links">
+      <?php if (setting('show_admin_link', '1') === '1'): ?><a class="footer__admin" href="<?= e(url('admin/')) ?>"><svg><use href="#icon-lock"/></svg> ورود مدیریت</a><?php endif; ?>
+      <?php if (setting('show_download', '1') === '1'): ?><a class="footer__admin footer__download" href="<?= e(url('download.php')) ?>" title="دانلود کل سورس سایت (PHP/HTML/CSS/JS) به‌صورت ZIP"><svg><use href="#icon-download"/></svg> دانلود سورس سایت (ZIP)</a><?php endif; ?>
+    </div>
   </div>
 </footer>
 

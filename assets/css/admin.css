@@ -65,7 +65,8 @@ details[open] .card__summary { margin-bottom: .8rem; }
 .form input[type="file"] { font: inherit; color: var(--muted); }
 .form input[type="color"] { width: 48px; height: 36px; border: none; background: none; padding: 0; cursor: pointer; }
 .color-input { display: flex; align-items: center; gap: .6rem; }
-.check { flex-direction: row !important; align-items: center; gap: .5rem !important; cursor: pointer; }
+.check { flex-direction: row !important; align-items: flex-start; gap: .5rem !important; cursor: pointer; line-height: 1.6; }
+.check input { margin-top: .35rem; flex: none; }
 .check input { width: auto; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 1.2rem; }
@@ -74,6 +75,7 @@ details[open] .card__summary { margin-bottom: .8rem; }
 .form-actions { display: flex; gap: .6rem; margin-top: .6rem; padding-top: .9rem; border-top: 1px solid var(--line); }
 .upload-box { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .8rem; }
 .upload-box > label { margin-bottom: 0; }
+.upload-box__hint { color: var(--gold-2); font-size: .74rem; opacity: .85; line-height: 1.5; }
 .upload-box__preview { max-height: 140px; width: auto; max-width: 100%; border-radius: 10px; border: 1px solid var(--line); object-fit: contain; background: rgba(0,0,0,.2); }
 .upload-box__preview--round { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; }
 .audio-preview { width: 100%; height: 40px; }
@@ -148,8 +150,10 @@ details[open] .card__summary { margin-bottom: .8rem; }
 /* ----- واکنش‌گرا ----- */
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
-  .sidebar { border-inline-end: none; border-bottom: 1px solid var(--line); padding: .5rem; overflow-x: auto; }
-  .sidebar nav { flex-direction: row; position: static; width: max-content; }
+  .sidebar { border-inline-end: none; border-bottom: 1px solid var(--line); padding: .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; position: sticky; top: 62px; z-index: 15; background: var(--panel); }
+  .sidebar nav { flex-direction: row; position: static; width: max-content; padding-inline-end: 1rem; }
+  .sidebar a { white-space: nowrap; padding: .45rem .8rem; font-size: .92rem; }
+  .topbar { position: static; }
   .grid-3 { grid-template-columns: 1fr 1fr; }
   .span-3 { grid-column: span 2; }
   .add-member { grid-template-columns: 1fr 1fr; }

@@ -12,13 +12,9 @@ $stats = [
 ];
 $uploadsWritable = is_writable($config['uploads_dir']) || (!is_dir($config['uploads_dir']) && is_writable(dirname($config['uploads_dir'])));
 $dataWritable    = is_writable(dirname($config['db_path']));
-$isDefaultPass   = password_verify($config['default_admin']['password'], (string)scalar('SELECT password_hash FROM admins WHERE username = ?', [$config['default_admin']['username']]));
 
 admin_header('پیشخوان', 'dashboard');
 ?>
-<?php if ($isDefaultPass): ?>
-  <div class="alert alert--warn">رمز عبور مدیر هنوز مقدار پیش‌فرض است. برای امنیت سایت آن را از بخش <a href="account.php">حساب کاربری</a> تغییر دهید.</div>
-<?php endif; ?>
 <?php if (!$uploadsWritable || !$dataWritable): ?>
   <div class="alert alert--error">پوشه‌ی <code>uploads</code> یا <code>data</code> قابل نوشتن نیست؛ آپلود فایل و ذخیره‌ی اطلاعات کار نخواهد کرد. دسترسی (chmod 775) را بررسی کنید.</div>
 <?php endif; ?>

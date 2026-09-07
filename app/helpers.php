@@ -106,12 +106,23 @@ function csrf_field(): string
     return '<input type="hidden" name="_csrf" value="' . e(csrf_token()) . '">';
 }
 
+function csrf_valid(): bool
+{
+    return isset($_POST['_csrf'], $_SESSION['_csrf']) && hash_equals((string)$_SESSION['_csrf'], (string)$_POST['_csrf']);
+}
+
 function csrf_check(): void
 {
-    $ok = isset($_POST['_csrf'], $_SESSION['_csrf']) && hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf']);
-    if (!$ok) {
-        http_response_code(419);
-        exit('درخواست نامعتبر است (CSRF). لطفاً صفحه را دوباره باز کنید.');
+    if (!csrf_valid()) {
+        // به‌جای صفحه‌ی خطای خشک، کاربر را با پیام به همان صفحه برمی‌گردانیم تا دوباره تلاش کند
+        flash('error', 'نشست شما منقضی شده بود؛ لطفاً دوباره تلاش کنید.');
+        $back = $_SERVER['REQUEST_URI'] ?? url('admin/');
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            http_response_code(419);
+            header('Content-Type: application/json; charset=utf-8');
+            exit(json_encode(['ok' => false, 'error' => 'csrf']));
+        }
+        redirect($back);
     }
 }
 
@@ -202,6 +213,33 @@ function font_ext_by_signature(string $path): ?string
         'OTTO'             => 'otf',
         default            => null,
     };
+}
+
+/** ابعاد تصویر (فایل آپلودشده یا داخل assets) — [w, h] یا null */
+function image_dimensions(?string $value): ?array
+{
+    $value = trim((string)$value);
+    if ($value === '' || preg_match('~^(https?:)?//~i', $value)) {
+        return null;
+    }
+    $path = str_starts_with($value, 'assets/')
+        ? APP_ROOT . '/' . $value
+        : rtrim($GLOBALS['config']['uploads_dir'], '/') . '/' . $value;
+    if (!is_file($path)) {
+        return null;
+    }
+    if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg') {
+        $xml = @simplexml_load_file($path);
+        if ($xml && isset($xml['viewBox'])) {
+            $vb = preg_split('/[\s,]+/', trim((string)$xml['viewBox']));
+            if (count($vb) === 4) {
+                return [(int)round((float)$vb[2]), (int)round((float)$vb[3])];
+            }
+        }
+        return null;
+    }
+    $info = @getimagesize($path);
+    return $info ? [(int)$info[0], (int)$info[1]] : null;
 }
 
 /** حذف امن فایل آپلودشده */

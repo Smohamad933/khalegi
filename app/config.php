@@ -11,11 +11,23 @@ return [
     'uploads_dir'   => dirname(__DIR__) . '/uploads',
     'uploads_url'   => 'uploads',
 
-    // کاربر پیش‌فرض پنل مدیریت (فقط در اولین اجرا ساخته می‌شود)
-    'default_admin' => ['username' => 'admin', 'password' => 'admin123'],
+    // کاربر اولیه‌ی پنل مدیریت (فقط در اولین اجرا ساخته می‌شود).
+    // رمز عبور به‌صورت هش bcrypt نگهداری می‌شود و هیچ‌جا نمایش داده نمی‌شود.
+    // برای ساخت هش جدید:  php -r "echo password_hash('رمز-جدید', PASSWORD_BCRYPT);"
+    // (پس از ورود می‌توانید نام کاربری و رمز را از پنل → «حساب کاربری» تغییر دهید)
+    'default_admin' => [
+        'username'      => 'Mohusyn',
+        'password_hash' => '$2y$10$YzJewFGc/B7FMkE0OjqzZuVr5b2x.uf0zC329bYc26WzRovKRWwHa',
+    ],
 
     // حداکثر حجم آپلود (مگابایت)
     'max_upload_mb' => 25,
+
+    // مدت اعتبار نشست پنل مدیریت (روز)
+    'session_days'  => 14,
+
+    // تشخیص HTTPS: null = خودکار (با پشتیبانی از پروکسی/کلادفلر)، true/false = اجباری
+    'force_https'   => null,
 
     // نام کوکی نشست پنل مدیریت
     'session_name'  => 'khalegi_admin',

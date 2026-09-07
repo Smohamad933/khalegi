@@ -5,16 +5,26 @@ require __DIR__ . '/_bootstrap.php';
 if (auth_user()) {
     redirect(url('admin/index.php'));
 }
+$notice = apply_emergency_reset();
+if (!admins_exist()) {
+    redirect(url('admin/setup.php'));
+}
 
+/*
+ * فرم ورود عمداً توکن CSRF را الزامی نمی‌کند:
+ * پیش از ورود هیچ عملیات حساسی وجود ندارد و نباید یک نشست منقضی‌شده (مثلاً تب بازمانده از دیروز
+ * یا اولین بازدید بدون کوکی) با خطای «درخواست نامعتبر» مانع ورود شود.
+ * پس از ورود موفق، توکن CSRF تازه ساخته می‌شود و همه‌ی فرم‌های پنل با آن محافظت می‌شوند.
+ */
 $error = '';
+$username = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_check();
-    if (auth_attempt(post('username'), post('password'))) {
+    $username = post('username');
+    if (auth_attempt($username, (string)($_POST['password'] ?? ''))) {
         redirect(url('admin/index.php'));
     }
     $error = 'نام کاربری یا رمز عبور اشتباه است.';
 }
-$isDefault = (bool)row('SELECT 1 FROM admins WHERE username = ?', [$config['default_admin']['username']]);
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -27,18 +37,15 @@ $isDefault = (bool)row('SELECT 1 FROM admins WHERE username = ?', [$config['defa
   <link rel="stylesheet" href="<?= e(url('fonts.css.php')) ?>">
 </head>
 <body class="admin login-page">
-  <form class="login-card" method="post">
-    <?= csrf_field() ?>
+  <form class="login-card" method="post" action="<?= e(url('admin/login.php')) ?>" autocomplete="on">
     <div class="login-card__logo">♪</div>
     <h1>ورود به پنل مدیریت</h1>
     <p class="muted"><?= e(setting('site_title', 'بروشور کنسرت')) ?></p>
+    <?php if ($notice): ?><div class="alert alert--success"><?= e($notice) ?></div><?php endif; ?>
     <?php if ($error): ?><div class="alert alert--error"><?= e($error) ?></div><?php endif; ?>
-    <label>نام کاربری<input type="text" name="username" required autofocus autocomplete="username"></label>
-    <label>رمز عبور<input type="password" name="password" required autocomplete="current-password"></label>
+    <label>نام کاربری<input type="text" name="username" value="<?= e($username) ?>" required autofocus autocomplete="username" dir="ltr"></label>
+    <label>رمز عبور<input type="password" name="password" required autocomplete="current-password" dir="ltr"></label>
     <button class="btn btn--primary btn--block" type="submit">ورود</button>
-    <?php if ($isDefault): ?>
-      <p class="hint">کاربر پیش‌فرض: <code>admin</code> / <code>admin123</code> — پس از ورود حتماً آن را از بخش «حساب کاربری» تغییر دهید.</p>
-    <?php endif; ?>
     <a class="back-link" href="<?= e(url('')) ?>">← بازگشت به سایت</a>
   </form>
 </body>

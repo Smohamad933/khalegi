@@ -127,10 +127,10 @@ SQL);
 
     if ((int)scalar('SELECT COUNT(*) FROM admins') === 0) {
         $a = $config['default_admin'];
-        q('INSERT INTO admins(username, password_hash) VALUES(?, ?)', [
-            $a['username'],
-            password_hash($a['password'], PASSWORD_DEFAULT),
-        ]);
+        $hash = $a['password_hash'] ?? (isset($a['password']) ? password_hash((string)$a['password'], PASSWORD_DEFAULT) : '');
+        if ($hash !== '') {
+            q('INSERT INTO admins(username, password_hash) VALUES(?, ?)', [$a['username'], $hash]);
+        }
     }
 
     if ((int)scalar('SELECT COUNT(*) FROM settings') === 0) {

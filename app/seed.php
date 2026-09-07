@@ -41,6 +41,9 @@ function seed_database(): void
         'color_line'        => '#a8272c',
         'color_gold'        => '#c9a96a',
         'show_tracks'       => '1',
+        'show_ticket'       => '1',
+        'show_download'     => '1',
+        'show_admin_link'   => '1',
         'show_gallery'      => '1',
     ];
     foreach ($settings as $k => $v) {

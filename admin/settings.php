@@ -32,15 +32,19 @@ $textFields = [
         'photo'  => 'عکس پس‌زمینه‌ی تمام‌صفحه + متن روی آن',
     ]],
 ];
+/*
+ * جایگاه‌های تصویر: [برچسب, راهنمای اندازه/فرمت]
+ * اندازه‌ها پیشنهادی‌اند؛ تصویر بزرگ‌تر خودکار کوچک می‌شود ولی تصویر خیلی کوچک تار می‌افتد.
+ */
 $imageFields = [
-    'poster'       => 'پوستر اجرا (تصویر کامل پوستر — در سرصفحه یا کنار متن معرفی)',
-    'logotype'     => 'لوگوتایپ (PNG شفاف — خوشنویسی «دستان»)',
-    'theatre_art'  => 'المان خطی تئاتر (پس‌زمینه‌ی سرصفحه — PNG/SVG شفاف)',
-    'bird_left'    => 'پرنده‌ی سمت چپ (PNG شفاف)',
-    'bird_right'   => 'پرنده‌ی سمت راست (PNG شفاف)',
-    'logo'         => 'لوگو / نشان (اختیاری)',
-    'hero_desktop' => 'عکس پس‌زمینه‌ی سرصفحه — دسکتاپ (فقط برای چیدمان «عکس پس‌زمینه»)',
-    'hero_mobile'  => 'نسخه‌ی موبایل پوستر / عکس پس‌زمینه (اختیاری)',
+    'poster'       => ['پوستر اجرا (تصویر کامل پوستر)',                  'عمودی، نسبت ۷:۱۰ (مثلاً ۱۴۰۰×۲۰۰۰ پیکسل) — JPG/PNG/WebP، حداکثر ۲ مگابایت'],
+    'logotype'     => ['لوگوتایپ (خوشنویسی «دستان»)',                    'PNG شفاف، عرض ۱۶۰۰–۲۰۰۰ پیکسل (در سایت تا ۴۲۰ پیکسل نمایش داده می‌شود)'],
+    'theatre_art'  => ['المان خطی تئاتر (پس‌زمینه‌ی سرصفحه)',              'SVG یا PNG شفاف، افقی، عرض حداقل ۲۲۰۰ پیکسل (نسبت تقریبی ۳:۲)'],
+    'bird_left'    => ['پرنده‌ی سمت چپ (رو به راست)',                     'PNG/SVG شفاف، مربع‌گونه، حدود ۶۰۰×۶۰۰ پیکسل'],
+    'bird_right'   => ['پرنده‌ی سمت راست (رو به چپ)',                     'PNG/SVG شفاف، مربع‌گونه، حدود ۶۰۰×۶۰۰ پیکسل'],
+    'logo'         => ['لوگو / نشان (اختیاری)',                            'PNG/SVG شفاف، مربع، حداقل ۲۵۶×۲۵۶ پیکسل'],
+    'hero_desktop' => ['عکس پس‌زمینه‌ی سرصفحه — دسکتاپ (چیدمان «عکس پس‌زمینه»)', 'افقی، ۱۹۲۰×۱۰۸۰ پیکسل — JPG/WebP'],
+    'hero_mobile'  => ['نسخه‌ی موبایل پوستر / عکس پس‌زمینه (اختیاری)',    'عمودی، ۱۰۸۰×۱۹۲۰ پیکسل — JPG/WebP'],
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,11 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         setting_set($key, $v);
     }
-    setting_set('show_tracks', isset($_POST['show_tracks']) ? '1' : '0');
-    setting_set('show_gallery', isset($_POST['show_gallery']) ? '1' : '0');
+    foreach (['show_tracks', 'show_gallery', 'show_ticket', 'show_download', 'show_admin_link'] as $flag) {
+        setting_set($flag, isset($_POST[$flag]) ? '1' : '0');
+    }
 
     $errors = [];
-    foreach ($imageFields as $key => $label) {
+    foreach ($imageFields as $key => [$label, $hint]) {
         if (!empty($_POST['remove_' . $key])) {
             if (!str_starts_with(setting($key), 'assets/')) {
                 delete_upload(setting($key));
@@ -109,18 +114,28 @@ admin_header('اطلاعات کنسرت', 'settings');
 
   <h2>تصاویر</h2>
   <div class="grid-3">
-    <?php foreach ($imageFields as $key => $label): $cur = media_url(setting($key)); ?>
+    <?php foreach ($imageFields as $key => [$label, $hint]): $cur = media_url(setting($key)); $dim = image_dimensions(setting($key)); ?>
       <div class="upload-box">
-        <label><?= e($label) ?><input type="file" name="<?= $key ?>" accept="image/*" data-preview="#pv-<?= $key ?>"></label>
+        <label><?= e($label) ?>
+          <small class="upload-box__hint">اندازه‌ی پیشنهادی: <?= e($hint) ?></small>
+          <input type="file" name="<?= $key ?>" accept="image/*" data-preview="#pv-<?= $key ?>">
+        </label>
         <img id="pv-<?= $key ?>" class="upload-box__preview" src="<?= e($cur) ?>" alt="" <?= $cur ? '' : 'hidden' ?>>
-        <?php if ($cur): ?><label class="check"><input type="checkbox" name="remove_<?= $key ?>" value="1"> حذف تصویر فعلی</label><?php endif; ?>
+        <?php if ($cur): ?>
+          <small class="muted">فعلی: <?= $dim ? fa_num($dim[0]) . '×' . fa_num($dim[1]) . ' پیکسل' : '' ?> <?= str_starts_with(setting($key), 'assets/') ? '(پیش‌فرض)' : '' ?></small>
+          <label class="check"><input type="checkbox" name="remove_<?= $key ?>" value="1"> حذف تصویر فعلی</label>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
   </div>
 
-  <h2>نمایش بخش‌ها</h2>
+  <h2>نمایش بخش‌ها و دکمه‌ها</h2>
   <label class="check"><input type="checkbox" name="show_tracks" value="1" <?= setting('show_tracks', '1') === '1' ? 'checked' : '' ?>> نمایش بخش «قطعات موسیقی»</label>
   <label class="check"><input type="checkbox" name="show_gallery" value="1" <?= setting('show_gallery', '1') === '1' ? 'checked' : '' ?>> نمایش بخش «گالری تصاویر»</label>
+  <label class="check"><input type="checkbox" name="show_ticket" value="1" <?= setting('show_ticket', '1') === '1' ? 'checked' : '' ?>> نمایش دکمه‌ی «تهیه بلیت» (لینک آن در فیلد «لینک خرید بلیت» بالا)</label>
+  <label class="check"><input type="checkbox" name="show_download" value="1" <?= setting('show_download', '1') === '1' ? 'checked' : '' ?>> نمایش دکمه‌ی «دانلود سورس سایت (ZIP)» در پاصفحه</label>
+  <label class="check"><input type="checkbox" name="show_admin_link" value="1" <?= setting('show_admin_link', '1') === '1' ? 'checked' : '' ?>> نمایش لینک «ورود مدیریت» در پاصفحه</label>
+  <p class="muted" style="font-size:.8rem;margin:-.3rem 0 .6rem">اگر لینک را پنهان کنید، همچنان می‌توانید با آدرس <code><?= e(url('admin/')) ?></code> وارد شوید.</p>
 
   <div class="form-actions">
     <button class="btn btn--primary" type="submit">ذخیره‌ی تنظیمات</button>
