@@ -129,7 +129,7 @@ function post_int(string $key, int $default = 0): int
 
 /**
  * ذخیره‌ی فایل آپلودشده. در صورت موفقیت نام فایل جدید و در غیر این صورت null برمی‌گرداند.
- * $kind: image | audio
+ * $kind: image | audio | font
  */
 function handle_upload(string $field, string $kind, ?string &$error = null): ?string
 {
@@ -147,33 +147,32 @@ function handle_upload(string $field, string $kind, ?string &$error = null): ?st
         return null;
     }
 
-    $allowed = [
-        'image' => ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/svg+xml' => 'svg'],
-        'audio' => ['audio/mpeg' => 'mp3', 'audio/mp3' => 'mp3', 'audio/ogg' => 'ogg', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/aac' => 'aac', 'video/mp4' => 'mp4'],
-        'font'  => ['font/woff2' => 'woff2', 'application/font-woff2' => 'woff2', 'font/woff' => 'woff', 'application/font-woff' => 'woff', 'font/ttf' => 'ttf', 'font/sfnt' => 'ttf', 'application/x-font-ttf' => 'ttf', 'application/font-sfnt' => 'ttf', 'font/otf' => 'otf', 'application/x-font-otf' => 'otf', 'application/vnd.ms-opentype' => 'otf', 'application/octet-stream' => ''],
-    ][$kind] ?? [];
-
-    $mime = '';
-    if (class_exists('finfo')) {
-        $fi = new finfo(FILEINFO_MIME_TYPE);
-        $mime = (string)$fi->file($f['tmp_name']);
-    }
-    if ($mime === '' || $mime === 'application/octet-stream') {
-        $mime = (string)($f['type'] ?? '');
-    }
-    if (!isset($allowed[$mime])) {
-        $error = 'نوع فایل مجاز نیست (' . e($mime) . ').';
-        return null;
-    }
-    $ext = $allowed[$mime];
     if ($kind === 'font') {
-        // برای فونت‌ها پسوند را از نام فایل می‌گیریم (MIME فونت‌ها در سرورها یکسان نیست)
-        $origExt = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
-        if (!in_array($origExt, ['woff2', 'woff', 'ttf', 'otf'], true)) {
-            $error = 'فقط فایل‌های woff2 / woff / ttf / otf مجاز هستند.';
+        // فونت‌ها: MIME گزارش‌شده توسط مرورگر/سرور قابل اتکا نیست؛ امضای باینری فایل را بررسی می‌کنیم
+        $ext = font_ext_by_signature($f['tmp_name']);
+        if ($ext === null) {
+            $error = 'فایل فونت معتبر نیست؛ فقط فایل‌های woff2 / woff / ttf / otf پذیرفته می‌شوند.';
             return null;
         }
-        $ext = $origExt;
+    } else {
+        $allowed = [
+            'image' => ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/svg+xml' => 'svg'],
+            'audio' => ['audio/mpeg' => 'mp3', 'audio/mp3' => 'mp3', 'audio/ogg' => 'ogg', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/aac' => 'aac', 'video/mp4' => 'mp4'],
+        ][$kind] ?? [];
+
+        $mime = '';
+        if (class_exists('finfo')) {
+            $fi = new finfo(FILEINFO_MIME_TYPE);
+            $mime = (string)$fi->file($f['tmp_name']);
+        }
+        if ($mime === '' || $mime === 'application/octet-stream') {
+            $mime = (string)($f['type'] ?? '');
+        }
+        if (!isset($allowed[$mime])) {
+            $error = 'نوع فایل مجاز نیست (' . e($mime) . ').';
+            return null;
+        }
+        $ext = $allowed[$mime];
     }
     $dir  = rtrim($GLOBALS['config']['uploads_dir'], '/');
     if (!is_dir($dir)) {
@@ -185,6 +184,24 @@ function handle_upload(string $field, string $kind, ?string &$error = null): ?st
         return null;
     }
     return $name;
+}
+
+/** تشخیص نوع فایل فونت از روی امضای باینری (۴ بایت اول). در صورت نامعتبر بودن null */
+function font_ext_by_signature(string $path): ?string
+{
+    $h = fopen($path, 'rb');
+    if (!$h) {
+        return null;
+    }
+    $head = (string)fread($h, 4);
+    fclose($h);
+    return match ($head) {
+        'wOF2'             => 'woff2',
+        'wOFF'             => 'woff',
+        "\x00\x01\x00\x00", 'true' => 'ttf',
+        'OTTO'             => 'otf',
+        default            => null,
+    };
 }
 
 /** حذف امن فایل آپلودشده */

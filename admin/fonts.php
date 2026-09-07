@@ -36,6 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'name' => $n, 'type' => $files['type'][$i], 'tmp_name' => $files['tmp_name'][$i],
                     'error' => $files['error'][$i], 'size' => $files['size'][$i],
                 ];
+                // اگر فایل ZIP باشد، فونت‌های داخل آن استخراج می‌شوند
+                if (strtolower(pathinfo((string)$n, PATHINFO_EXTENSION)) === 'zip' && class_exists('ZipArchive')) {
+                    foreach (extract_fonts_from_zip($files['tmp_name'][$i], $errors) as [$innerName, $savedName]) {
+                        register_font($family, $innerName, $savedName);
+                        $count++;
+                    }
+                    continue;
+                }
                 $err = null;
                 $saved = handle_upload('_one', 'font', $err);
                 if (!$saved) {
@@ -44,15 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     continue;
                 }
-                // حدس وزن از نام فایل (Bold, Light, ...)؛ در صورت انتخاب دستی، همان استفاده می‌شود
-                $weight = post('weight');
-                if ($weight === 'auto') {
-                    $weight = guess_font_weight($n);
-                }
-                $style = stripos($n, 'italic') !== false ? 'italic' : 'normal';
-                q('INSERT INTO fonts(family, weight, style, file, format) VALUES(?,?,?,?,?)', [
-                    $family, $weight, $style, $saved, strtolower(pathinfo($saved, PATHINFO_EXTENSION)),
-                ]);
+                register_font($family, (string)$n, $saved);
                 $count++;
             }
         }
@@ -85,6 +85,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect('fonts.php');
     }
+}
+
+/** ثبت رکورد فونت با حدس وزن/استایل از نام فایل (یا وزن انتخاب‌شده در فرم) */
+function register_font(string $family, string $origName, string $savedFile): void
+{
+    $weight = post('weight');
+    if ($weight === '' || $weight === 'auto') {
+        $weight = guess_font_weight($origName);
+    }
+    $style = stripos($origName, 'italic') !== false ? 'italic' : 'normal';
+    q('INSERT INTO fonts(family, weight, style, file, format) VALUES(?,?,?,?,?)', [
+        $family, $weight, $style, $savedFile, strtolower(pathinfo($savedFile, PATHINFO_EXTENSION)),
+    ]);
+}
+
+/** استخراج فایل‌های فونت از یک ZIP؛ خروجی: [[نام اصلی, نام ذخیره‌شده], ...] */
+function extract_fonts_from_zip(string $zipPath, array &$errors): array
+{
+    $out = [];
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath) !== true) {
+        $errors[] = 'فایل ZIP باز نشد.';
+        return $out;
+    }
+    $dir = rtrim($GLOBALS['config']['uploads_dir'], '/');
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $name = $zip->getNameIndex($i);
+        $base = basename($name);
+        if (str_starts_with($base, '.') || str_starts_with($name, '__MACOSX')) {
+            continue;
+        }
+        if (!in_array(strtolower(pathinfo($base, PATHINFO_EXTENSION)), ['woff2', 'woff', 'ttf', 'otf'], true)) {
+            continue;
+        }
+        $data = $zip->getFromIndex($i);
+        if ($data === false || strlen($data) > (int)$GLOBALS['config']['max_upload_mb'] * 1024 * 1024) {
+            continue;
+        }
+        $tmp = tempnam(sys_get_temp_dir(), 'font');
+        file_put_contents($tmp, $data);
+        $ext = font_ext_by_signature($tmp);
+        if ($ext === null) {
+            @unlink($tmp);
+            $errors[] = $base . ': فایل فونت معتبر نیست.';
+            continue;
+        }
+        $saved = date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        if (@rename($tmp, $dir . '/' . $saved) || (@copy($tmp, $dir . '/' . $saved) && @unlink($tmp))) {
+            @chmod($dir . '/' . $saved, 0644);
+            $out[] = [$base, $saved];
+        }
+    }
+    $zip->close();
+    if (!$out && !$errors) {
+        $errors[] = 'هیچ فایل فونتی (woff2/woff/ttf/otf) داخل ZIP پیدا نشد.';
+    }
+    return $out;
 }
 
 function guess_font_weight(string $name): string
@@ -141,7 +198,7 @@ admin_header('فونت سایت', 'fonts');
         <?php endforeach; ?>
       </select>
     </label>
-    <label>فایل‌ها (woff2 / woff / ttf / otf — چندتایی)<input type="file" name="files[]" accept=".woff2,.woff,.ttf,.otf" multiple required></label>
+    <label>فایل‌ها (woff2 / woff / ttf / otf یا ZIP — چندتایی)<input type="file" name="files[]" accept=".woff2,.woff,.ttf,.otf,.zip" multiple required></label>
   </div>
   <label class="check"><input type="checkbox" name="make_default" value="1" checked> این خانواده فونت اصلی سایت باشد</label>
   <div class="form-actions"><button class="btn btn--primary" type="submit">آپلود فونت</button></div>

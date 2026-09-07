@@ -28,6 +28,7 @@ function seed_database(): void
         'bird_left'         => 'assets/img/bird-left.svg',
         'bird_right'        => 'assets/img/bird-right.svg',
         'poster'            => '',
+        'hero_mode'         => 'auto',
         'font_family'       => 'abar',
         'font_fallback'     => 'Vazirmatn',
         'instagram'         => '',

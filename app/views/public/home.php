@@ -20,6 +20,22 @@ $hasGallery  = !empty($gallery);
 $fontFamily  = setting('font_family', 'abar');
 $fontFallback = setting('font_fallback', 'Vazirmatn');
 $fontCount   = (int)scalar('SELECT COUNT(*) FROM fonts');
+/*
+ * حالت سرصفحه:
+ *   art    = ترکیب تایپوگرافی با المان‌ها (تئاتر، لوگوتایپ، پرنده‌ها)
+ *   poster = نمایش خود تصویر پوستر (مانند سایت نمونه)
+ *   photo  = عکس پس‌زمینه + متن روی آن
+ *   auto   = اگر عکس پس‌زمینه باشد photo، وگرنه اگر پوستر آپلود شده باشد poster، وگرنه art
+ */
+$heroMode = setting('hero_mode', 'auto');
+if ($heroMode === 'auto') {
+    $heroMode = $heroDesktop ? 'photo' : ($poster ? 'poster' : 'art');
+} elseif ($heroMode === 'photo' && !$heroDesktop) {
+    $heroMode = $poster ? 'poster' : 'art';
+} elseif ($heroMode === 'poster' && !$poster) {
+    $heroMode = 'art';
+}
+$posterMobile = ($heroMode === 'poster' && media_url(setting('hero_mobile'))) ? media_url(setting('hero_mobile')) : $poster;
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -51,8 +67,8 @@ $fontCount   = (int)scalar('SELECT COUNT(*) FROM fonts');
 <a class="skip-link" href="#main">رفتن به محتوا</a>
 
 <!-- ================= سرصفحه / پوستر ================= -->
-<header class="hero <?= $heroDesktop ? 'hero--photo' : '' ?>" id="top">
-  <?php if ($heroDesktop): ?>
+<header class="hero hero--<?= $heroMode ?>" id="top">
+  <?php if ($heroMode === 'photo'): ?>
   <picture class="hero__media">
     <source media="(max-width: 767px)" srcset="<?= e($heroMobile) ?>">
     <img src="<?= e($heroDesktop) ?>" alt="" fetchpriority="high">
@@ -61,30 +77,50 @@ $fontCount   = (int)scalar('SELECT COUNT(*) FROM fonts');
   <img class="hero__theatre" src="<?= e($theatre) ?>" alt="" aria-hidden="true" fetchpriority="high">
   <?php endif; ?>
 
-  <?php if ($birdL): ?><img class="bird bird--hero-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
-  <?php if ($birdR): ?><img class="bird bird--hero-r" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
+  <?php if ($heroMode !== 'poster'): ?>
+    <?php if ($birdL): ?><img class="bird bird--hero-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
+    <?php if ($birdR): ?><img class="bird bird--hero-r" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
+  <?php endif; ?>
 
   <div class="hero__content container">
-    <?php if ($logo): ?><img class="hero__logo" src="<?= e($logo) ?>" alt=""><?php endif; ?>
-    <?php if ($tagline): ?><p class="hero__tagline reveal"><?= e($tagline) ?></p><?php endif; ?>
-    <h1 class="hero__title reveal"><?= e($title) ?></h1>
-    <?php if ($subtitle): ?><p class="hero__subtitle reveal"><?= e($subtitle) ?></p><?php endif; ?>
+    <?php if ($heroMode === 'poster'): ?>
+      <?php /* ---- حالت پوستر: خود تصویر پوستر، پرنده‌ها دو طرف آن ---- */ ?>
+      <?php if ($tagline): ?><p class="hero__tagline reveal"><?= e($tagline) ?></p><?php endif; ?>
+      <h1 class="sr-only"><?= e($title) ?><?= $subtitle ? ' — ' . e($subtitle) : '' ?></h1>
+      <div class="hero__stage reveal">
+        <?php if ($birdL): ?><img class="bird bird--hero-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
+        <a class="hero__poster" href="<?= e($poster) ?>" data-lightbox data-caption="<?= e($title) ?>">
+          <picture>
+            <?php if ($posterMobile !== $poster): ?><source media="(max-width: 767px)" srcset="<?= e($posterMobile) ?>"><?php endif; ?>
+            <img src="<?= e($poster) ?>" alt="پوستر <?= e($title) ?>" fetchpriority="high">
+          </picture>
+        </a>
+        <?php if ($birdR): ?><img class="bird bird--hero-r" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
+      </div>
+      <?php if ($logotype): ?><div class="hero__logotype hero__logotype--sm reveal"><img src="<?= e($logotype) ?>" alt="<?= e($siteTitle) ?>"></div><?php endif; ?>
+    <?php else: ?>
+      <?php /* ---- حالت تایپوگرافی / عکس ---- */ ?>
+      <?php if ($logo): ?><img class="hero__logo" src="<?= e($logo) ?>" alt=""><?php endif; ?>
+      <?php if ($tagline): ?><p class="hero__tagline reveal"><?= e($tagline) ?></p><?php endif; ?>
+      <h1 class="hero__title reveal"><?= e($title) ?></h1>
+      <?php if ($subtitle): ?><p class="hero__subtitle reveal"><?= e($subtitle) ?></p><?php endif; ?>
 
-    <div class="hero__people reveal">
-      <?php if (setting('conductor')): ?><span><small>به رهبری</small><b><?= e(setting('conductor')) ?></b></span><?php endif; ?>
-      <?php if (setting('singer')): ?><span><small>خواننده</small><b><?= e(setting('singer')) ?></b></span><?php endif; ?>
-    </div>
+      <div class="hero__people reveal">
+        <?php if (setting('conductor')): ?><span><small>به رهبری</small><b><?= e(setting('conductor')) ?></b></span><?php endif; ?>
+        <?php if (setting('singer')): ?><span><small>خواننده</small><b><?= e(setting('singer')) ?></b></span><?php endif; ?>
+      </div>
 
-    <?php if ($logotype): ?>
-    <div class="hero__logotype reveal">
-      <img src="<?= e($logotype) ?>" alt="<?= e($siteTitle) ?>">
-    </div>
-    <?php endif; ?>
+      <?php if ($logotype): ?>
+      <div class="hero__logotype reveal">
+        <img src="<?= e($logotype) ?>" alt="<?= e($siteTitle) ?>">
+      </div>
+      <?php endif; ?>
 
-    <?php if ($notes): ?>
-    <div class="hero__notes reveal">
-      <?php foreach ($notes as $n): ?><p><?= e($n) ?></p><?php endforeach; ?>
-    </div>
+      <?php if ($notes): ?>
+      <div class="hero__notes reveal">
+        <?php foreach ($notes as $n): ?><p><?= e($n) ?></p><?php endforeach; ?>
+      </div>
+      <?php endif; ?>
     <?php endif; ?>
 
     <ul class="hero__meta reveal">
@@ -113,12 +149,13 @@ $fontCount   = (int)scalar('SELECT COUNT(*) FROM fonts');
 
 <main id="main">
 
-  <?php if ($about || $poster): ?>
+  <?php $aboutPoster = ($heroMode !== 'poster') ? $poster : ''; ?>
+  <?php if ($about || $aboutPoster): ?>
   <!-- ================= درباره‌ی اجرا ================= -->
   <section class="section section--about" id="about">
     <div class="container">
-      <div class="about <?= $poster ? 'about--with-poster' : '' ?>">
-        <?php if ($poster): ?>
+      <div class="about <?= $aboutPoster ? 'about--with-poster' : '' ?>">
+        <?php if ($aboutPoster): ?>
         <a class="about__poster reveal" href="<?= e($poster) ?>" data-lightbox data-caption="<?= e($title) ?>">
           <img src="<?= e($poster) ?>" alt="پوستر <?= e($title) ?>" loading="lazy">
         </a>

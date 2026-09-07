@@ -25,24 +25,34 @@ $textFields = [
     'color_teal'       => ['رنگ فیروزه‌ای (تذهیب/پرنده‌ها)', 'color'],
     'color_line'       => ['رنگ خطوط (قرمز خطی)', 'color'],
     'color_gold'       => ['رنگ طلایی', 'color'],
+    'hero_mode'        => ['چیدمان سرصفحه', 'select', [
+        'auto'   => 'خودکار (اگر پوستر آپلود شده باشد، خودِ پوستر؛ وگرنه ترکیب المان‌ها)',
+        'poster' => 'تصویر پوستر (مثل سایت نمونه) + پرنده‌ها دو طرف آن',
+        'art'    => 'ترکیب المان‌ها (المان تئاتر + عنوان + لوگوتایپ + پرنده‌ها)',
+        'photo'  => 'عکس پس‌زمینه‌ی تمام‌صفحه + متن روی آن',
+    ]],
 ];
 $imageFields = [
-    'poster'       => 'پوستر اجرا (تصویر کامل پوستر — در بخش معرفی نمایش داده می‌شود)',
+    'poster'       => 'پوستر اجرا (تصویر کامل پوستر — در سرصفحه یا کنار متن معرفی)',
     'logotype'     => 'لوگوتایپ (PNG شفاف — خوشنویسی «دستان»)',
     'theatre_art'  => 'المان خطی تئاتر (پس‌زمینه‌ی سرصفحه — PNG/SVG شفاف)',
     'bird_left'    => 'پرنده‌ی سمت چپ (PNG شفاف)',
     'bird_right'   => 'پرنده‌ی سمت راست (PNG شفاف)',
     'logo'         => 'لوگو / نشان (اختیاری)',
-    'hero_desktop' => 'تصویر پس‌زمینه‌ی جایگزین سرصفحه — دسکتاپ (اختیاری)',
-    'hero_mobile'  => 'تصویر پس‌زمینه‌ی جایگزین سرصفحه — موبایل (اختیاری)',
+    'hero_desktop' => 'عکس پس‌زمینه‌ی سرصفحه — دسکتاپ (فقط برای چیدمان «عکس پس‌زمینه»)',
+    'hero_mobile'  => 'نسخه‌ی موبایل پوستر / عکس پس‌زمینه (اختیاری)',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    foreach ($textFields as $key => [$label, $type]) {
+    foreach ($textFields as $key => $def) {
+        [$label, $type] = $def;
         $v = post($key);
         if ($type === 'color' && !preg_match('/^#[0-9a-fA-F]{6}$/', $v)) {
             $v = setting($key);
+        }
+        if ($type === 'select' && !isset($def[2][$v])) {
+            $v = (string)array_key_first($def[2]);
         }
         setting_set($key, $v);
     }
@@ -79,10 +89,14 @@ admin_header('اطلاعات کنسرت', 'settings');
 <form method="post" enctype="multipart/form-data" class="card form">
   <?= csrf_field() ?>
   <div class="grid-2">
-    <?php foreach ($textFields as $key => [$label, $type]): ?>
-      <label class="<?= $type === 'textarea' ? 'span-2' : '' ?>">
+    <?php foreach ($textFields as $key => $def): [$label, $type] = $def; ?>
+      <label class="<?= in_array($type, ['textarea', 'select'], true) ? 'span-2' : '' ?>">
         <?= e($label) ?>
-        <?php if ($type === 'textarea'): ?>
+        <?php if ($type === 'select'): ?>
+          <select name="<?= $key ?>">
+            <?php foreach ($def[2] as $val => $text): ?><option value="<?= e($val) ?>" <?= setting($key, 'auto') === $val ? 'selected' : '' ?>><?= e($text) ?></option><?php endforeach; ?>
+          </select>
+        <?php elseif ($type === 'textarea'): ?>
           <textarea name="<?= $key ?>" rows="5"><?= e(setting($key)) ?></textarea>
         <?php elseif ($type === 'color'): ?>
           <span class="color-input"><input type="color" name="<?= $key ?>" value="<?= e(setting($key) ?: '#000000') ?>"><code><?= e(setting($key)) ?></code></span>
