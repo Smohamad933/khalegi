@@ -1,0 +1,5 @@
+# فقط فایل‌های رسانه‌ای سرو شوند؛ اجرای PHP در این پوشه ممنوع
+<FilesMatch "\.(php|phtml|php5|phar|cgi|pl|sh)$">
+  Require all denied
+</FilesMatch>
+php_flag engine off

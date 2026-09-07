@@ -1,0 +1,8 @@
+# دیتابیس و فایل‌های آپلودی محلی (روی هاست ساخته می‌شوند)
+data/*.sqlite
+data/*.sqlite-*
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+node_modules/
+.DS_Store
