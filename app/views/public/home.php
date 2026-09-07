@@ -4,13 +4,22 @@ $siteTitle   = setting('site_title', 'بروشور کنسرت');
 $title       = setting('concert_title');
 $subtitle    = setting('concert_subtitle');
 $tagline     = setting('concert_tagline');
+$notes       = lines(setting('concert_note'));
 $heroDesktop = media_url(setting('hero_desktop'));
 $heroMobile  = media_url(setting('hero_mobile')) ?: $heroDesktop;
 $logo        = media_url(setting('logo'));
+$logotype    = media_url(setting('logotype'));
+$theatre     = media_url(setting('theatre_art'));
+$birdL       = media_url(setting('bird_left'));
+$birdR       = media_url(setting('bird_right'));
+$poster      = media_url(setting('poster'));
 $ticket      = setting('ticket_url');
 $about       = lines(setting('about'));
 $hasTracks   = !empty($tracks);
 $hasGallery  = !empty($gallery);
+$fontFamily  = setting('font_family', 'abar');
+$fontFallback = setting('font_fallback', 'Vazirmatn');
+$fontCount   = (int)scalar('SELECT COUNT(*) FROM fonts');
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -21,26 +30,39 @@ $hasGallery  = !empty($gallery);
   <meta name="description" content="<?= e($title . ' — ' . $subtitle . ' — ' . setting('venue') . ' — ' . setting('event_date')) ?>">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($subtitle . ' | ' . setting('venue') . ' | ' . setting('event_date')) ?>">
-  <?php if ($heroDesktop): ?><meta property="og:image" content="<?= e($heroDesktop) ?>"><?php endif; ?>
-  <meta name="theme-color" content="<?= e(setting('color_bg', '#0b1430')) ?>">
+  <?php if ($poster ?: $heroDesktop): ?><meta property="og:image" content="<?= e($poster ?: $heroDesktop) ?>"><?php endif; ?>
+  <meta name="theme-color" content="<?= e(setting('color_bg', '#efe6d7')) ?>">
   <link rel="icon" href="<?= e($logo ?: url('assets/img/favicon.svg')) ?>">
   <link rel="stylesheet" href="<?= e(asset('assets/css/site.css')) ?>">
-  <style>:root{--bg:<?= e(setting('color_bg', '#0b1430')) ?>;--gold:<?= e(setting('color_gold', '#d9b56a')) ?>;}</style>
+  <link rel="stylesheet" href="<?= e(url('fonts.css.php')) ?>?v=<?= $fontCount ?>">
+  <style>
+    :root{
+      --bg:<?= e(setting('color_bg', '#efe6d7')) ?>;
+      --accent:<?= e(setting('color_accent', '#d3522f')) ?>;
+      --teal:<?= e(setting('color_teal', '#2b8ba0')) ?>;
+      --line:<?= e(setting('color_line', '#a8272c')) ?>;
+      --gold:<?= e(setting('color_gold', '#c9a96a')) ?>;
+    }
+  </style>
 </head>
 <body>
 <?php require __DIR__ . '/ornaments.php'; ?>
 
 <a class="skip-link" href="#main">رفتن به محتوا</a>
 
-<!-- ================= پوستر / سرصفحه ================= -->
-<header class="hero" id="top">
+<!-- ================= سرصفحه / پوستر ================= -->
+<header class="hero <?= $heroDesktop ? 'hero--photo' : '' ?>" id="top">
   <?php if ($heroDesktop): ?>
   <picture class="hero__media">
     <source media="(max-width: 767px)" srcset="<?= e($heroMobile) ?>">
-    <img src="<?= e($heroDesktop) ?>" alt="<?= e($title) ?>" fetchpriority="high">
+    <img src="<?= e($heroDesktop) ?>" alt="" fetchpriority="high">
   </picture>
+  <?php elseif ($theatre): ?>
+  <img class="hero__theatre" src="<?= e($theatre) ?>" alt="" aria-hidden="true" fetchpriority="high">
   <?php endif; ?>
-  <div class="hero__shade"></div>
+
+  <?php if ($birdL): ?><img class="bird bird--hero-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
+  <?php if ($birdR): ?><img class="bird bird--hero-r" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
 
   <div class="hero__content container">
     <?php if ($logo): ?><img class="hero__logo" src="<?= e($logo) ?>" alt=""><?php endif; ?>
@@ -49,9 +71,21 @@ $hasGallery  = !empty($gallery);
     <?php if ($subtitle): ?><p class="hero__subtitle reveal"><?= e($subtitle) ?></p><?php endif; ?>
 
     <div class="hero__people reveal">
-      <?php if (setting('conductor')): ?><span><small>رهبر ارکستر</small><b><?= e(setting('conductor')) ?></b></span><?php endif; ?>
+      <?php if (setting('conductor')): ?><span><small>به رهبری</small><b><?= e(setting('conductor')) ?></b></span><?php endif; ?>
       <?php if (setting('singer')): ?><span><small>خواننده</small><b><?= e(setting('singer')) ?></b></span><?php endif; ?>
     </div>
+
+    <?php if ($logotype): ?>
+    <div class="hero__logotype reveal">
+      <img src="<?= e($logotype) ?>" alt="<?= e($siteTitle) ?>">
+    </div>
+    <?php endif; ?>
+
+    <?php if ($notes): ?>
+    <div class="hero__notes reveal">
+      <?php foreach ($notes as $n): ?><p><?= e($n) ?></p><?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 
     <ul class="hero__meta reveal">
       <?php if (setting('event_date')): ?><li><svg><use href="#icon-calendar"/></svg><?= e(setting('event_date')) ?></li><?php endif; ?>
@@ -60,7 +94,7 @@ $hasGallery  = !empty($gallery);
     </ul>
 
     <?php if ($ticket): ?>
-    <a class="btn btn--gold reveal" href="<?= e($ticket) ?>" target="_blank" rel="noopener"><svg><use href="#icon-ticket"/></svg> تهیه بلیت</a>
+    <a class="btn btn--accent reveal" href="<?= e($ticket) ?>" target="_blank" rel="noopener"><svg><use href="#icon-ticket"/></svg> تهیه بلیت</a>
     <?php endif; ?>
   </div>
 
@@ -79,16 +113,26 @@ $hasGallery  = !empty($gallery);
 
 <main id="main">
 
-  <?php if ($about): ?>
+  <?php if ($about || $poster): ?>
   <!-- ================= درباره‌ی اجرا ================= -->
   <section class="section section--about" id="about">
-    <div class="container narrow">
-      <div class="frame reveal">
-        <svg class="frame__c frame__c--tl"><use href="#orn-corner"/></svg>
-        <svg class="frame__c frame__c--tr"><use href="#orn-corner"/></svg>
-        <svg class="frame__c frame__c--bl"><use href="#orn-corner"/></svg>
-        <svg class="frame__c frame__c--br"><use href="#orn-corner"/></svg>
-        <?php foreach ($about as $p): ?><p><?= e($p) ?></p><?php endforeach; ?>
+    <div class="container">
+      <div class="about <?= $poster ? 'about--with-poster' : '' ?>">
+        <?php if ($poster): ?>
+        <a class="about__poster reveal" href="<?= e($poster) ?>" data-lightbox data-caption="<?= e($title) ?>">
+          <img src="<?= e($poster) ?>" alt="پوستر <?= e($title) ?>" loading="lazy">
+        </a>
+        <?php endif; ?>
+        <?php if ($about): ?>
+        <div class="frame reveal">
+          <svg class="frame__c frame__c--tl"><use href="#orn-corner"/></svg>
+          <svg class="frame__c frame__c--tr"><use href="#orn-corner"/></svg>
+          <svg class="frame__c frame__c--bl"><use href="#orn-corner"/></svg>
+          <svg class="frame__c frame__c--br"><use href="#orn-corner"/></svg>
+          <h2 class="frame__title">درباره‌ی اجرا</h2>
+          <?php foreach ($about as $p): ?><p><?= e($p) ?></p><?php endforeach; ?>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
   </section>
@@ -165,6 +209,7 @@ $hasGallery  = !empty($gallery);
 
   <!-- ================= اعضای ارکستر ================= -->
   <section class="section section--alt" id="orchestra">
+    <?php if ($birdR): ?><img class="bird bird--section" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
     <div class="container">
       <h2 class="section-title reveal">
         <svg class="section-title__wing"><use href="#orn-wing"/></svg>
@@ -195,6 +240,7 @@ $hasGallery  = !empty($gallery);
 
   <!-- ================= عوامل اجرایی ================= -->
   <section class="section" id="crew">
+    <?php if ($birdL): ?><img class="bird bird--section bird--section-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
     <div class="container">
       <h2 class="section-title reveal">
         <svg class="section-title__wing"><use href="#orn-wing"/></svg>
@@ -241,9 +287,11 @@ $hasGallery  = !empty($gallery);
 
 <!-- ================= پاصفحه ================= -->
 <footer class="footer">
+  <?php if ($birdL): ?><img class="bird bird--footer-l" src="<?= e($birdL) ?>" alt="" aria-hidden="true"><?php endif; ?>
+  <?php if ($birdR): ?><img class="bird bird--footer-r" src="<?= e($birdR) ?>" alt="" aria-hidden="true"><?php endif; ?>
   <div class="container">
     <svg class="footer__divider"><use href="#orn-divider"/></svg>
-    <?php if ($logo): ?><img class="footer__logo" src="<?= e($logo) ?>" alt=""><?php endif; ?>
+    <?php if ($logotype): ?><img class="footer__logotype" src="<?= e($logotype) ?>" alt=""><?php elseif ($logo): ?><img class="footer__logo" src="<?= e($logo) ?>" alt=""><?php endif; ?>
     <p class="footer__title"><?= e($siteTitle) ?></p>
     <div class="footer__social">
       <?php if (setting('instagram')): ?><a href="<?= e(setting('instagram')) ?>" target="_blank" rel="noopener" aria-label="اینستاگرام"><svg><use href="#icon-instagram"/></svg></a><?php endif; ?>

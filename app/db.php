@@ -114,6 +114,15 @@ CREATE TABLE IF NOT EXISTS gallery (
     caption    TEXT NOT NULL DEFAULT '',
     sort_order INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS fonts (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    family     TEXT NOT NULL,
+    weight     TEXT NOT NULL DEFAULT '400',
+    style      TEXT NOT NULL DEFAULT 'normal',
+    file       TEXT NOT NULL,
+    format     TEXT NOT NULL DEFAULT 'woff2',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 SQL);
 
     if ((int)scalar('SELECT COUNT(*) FROM admins') === 0) {

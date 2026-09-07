@@ -7,6 +7,7 @@ $textFields = [
     'site_title'       => ['نام سایت / ارکستر', 'text'],
     'concert_title'    => ['عنوان کنسرت', 'text'],
     'concert_subtitle' => ['زیرعنوان', 'text'],
+    'concert_note'     => ['یادداشت زیر عنوان (مثلاً یادواره / بزرگداشت — هر مورد در یک خط)', 'textarea'],
     'concert_tagline'  => ['برچسب بالای عنوان (مثلاً «بروشور الکترونیک اجرا»)', 'text'],
     'conductor'        => ['رهبر ارکستر', 'text'],
     'singer'           => ['خواننده', 'text'],
@@ -19,13 +20,21 @@ $textFields = [
     'telegram'         => ['لینک تلگرام', 'url'],
     'website'          => ['لینک وب‌سایت', 'url'],
     'footer_note'      => ['متن پاصفحه', 'text'],
-    'color_bg'         => ['رنگ زمینه', 'color'],
-    'color_gold'       => ['رنگ طلایی (تأکید)', 'color'],
+    'color_bg'         => ['رنگ زمینه (کرم)', 'color'],
+    'color_accent'     => ['رنگ تأکید (نارنجی/قرمز عنوان)', 'color'],
+    'color_teal'       => ['رنگ فیروزه‌ای (تذهیب/پرنده‌ها)', 'color'],
+    'color_line'       => ['رنگ خطوط (قرمز خطی)', 'color'],
+    'color_gold'       => ['رنگ طلایی', 'color'],
 ];
 $imageFields = [
-    'hero_desktop' => 'پوستر دسکتاپ (افقی، پیشنهادی ۱۹۲۰×۱۰۸۰)',
-    'hero_mobile'  => 'پوستر موبایل (عمودی، پیشنهادی ۱۰۸۰×۱۹۲۰)',
-    'logo'         => 'لوگو (PNG/SVG شفاف)',
+    'poster'       => 'پوستر اجرا (تصویر کامل پوستر — در بخش معرفی نمایش داده می‌شود)',
+    'logotype'     => 'لوگوتایپ (PNG شفاف — خوشنویسی «دستان»)',
+    'theatre_art'  => 'المان خطی تئاتر (پس‌زمینه‌ی سرصفحه — PNG/SVG شفاف)',
+    'bird_left'    => 'پرنده‌ی سمت چپ (PNG شفاف)',
+    'bird_right'   => 'پرنده‌ی سمت راست (PNG شفاف)',
+    'logo'         => 'لوگو / نشان (اختیاری)',
+    'hero_desktop' => 'تصویر پس‌زمینه‌ی جایگزین سرصفحه — دسکتاپ (اختیاری)',
+    'hero_mobile'  => 'تصویر پس‌زمینه‌ی جایگزین سرصفحه — موبایل (اختیاری)',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,7 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
     foreach ($imageFields as $key => $label) {
         if (!empty($_POST['remove_' . $key])) {
-            delete_upload(setting($key));
+            if (!str_starts_with(setting($key), 'assets/')) {
+                delete_upload(setting($key));
+            }
             setting_set($key, '');
             continue;
         }

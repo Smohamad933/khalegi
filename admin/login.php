@@ -24,6 +24,7 @@ $isDefault = (bool)row('SELECT 1 FROM admins WHERE username = ?', [$config['defa
   <meta name="robots" content="noindex,nofollow">
   <title>ورود به پنل مدیریت</title>
   <link rel="stylesheet" href="<?= e(asset('assets/css/admin.css')) ?>">
+  <link rel="stylesheet" href="<?= e(url('fonts.css.php')) ?>">
 </head>
 <body class="admin login-page">
   <form class="login-card" method="post">

@@ -150,6 +150,7 @@ function handle_upload(string $field, string $kind, ?string &$error = null): ?st
     $allowed = [
         'image' => ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/svg+xml' => 'svg'],
         'audio' => ['audio/mpeg' => 'mp3', 'audio/mp3' => 'mp3', 'audio/ogg' => 'ogg', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/aac' => 'aac', 'video/mp4' => 'mp4'],
+        'font'  => ['font/woff2' => 'woff2', 'application/font-woff2' => 'woff2', 'font/woff' => 'woff', 'application/font-woff' => 'woff', 'font/ttf' => 'ttf', 'font/sfnt' => 'ttf', 'application/x-font-ttf' => 'ttf', 'application/font-sfnt' => 'ttf', 'font/otf' => 'otf', 'application/x-font-otf' => 'otf', 'application/vnd.ms-opentype' => 'otf', 'application/octet-stream' => ''],
     ][$kind] ?? [];
 
     $mime = '';
@@ -164,7 +165,16 @@ function handle_upload(string $field, string $kind, ?string &$error = null): ?st
         $error = 'نوع فایل مجاز نیست (' . e($mime) . ').';
         return null;
     }
-    $ext  = $allowed[$mime];
+    $ext = $allowed[$mime];
+    if ($kind === 'font') {
+        // برای فونت‌ها پسوند را از نام فایل می‌گیریم (MIME فونت‌ها در سرورها یکسان نیست)
+        $origExt = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
+        if (!in_array($origExt, ['woff2', 'woff', 'ttf', 'otf'], true)) {
+            $error = 'فقط فایل‌های woff2 / woff / ttf / otf مجاز هستند.';
+            return null;
+        }
+        $ext = $origExt;
+    }
     $dir  = rtrim($GLOBALS['config']['uploads_dir'], '/');
     if (!is_dir($dir)) {
         @mkdir($dir, 0775, true);

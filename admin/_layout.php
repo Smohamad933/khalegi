@@ -16,6 +16,7 @@ function admin_header(string $pageTitle, string $active = ''): void
         'crew'      => ['groups.php?kind=crew',      'عوامل اجرایی'],
         'tracks'    => ['tracks.php',    'قطعات'],
         'gallery'   => ['gallery.php',   'گالری'],
+        'fonts'     => ['fonts.php',     'فونت سایت'],
         'account'   => ['account.php',   'حساب کاربری'],
     ];
     ?>
@@ -27,6 +28,7 @@ function admin_header(string $pageTitle, string $active = ''): void
   <meta name="robots" content="noindex,nofollow">
   <title><?= e($pageTitle) ?> | پنل مدیریت</title>
   <link rel="stylesheet" href="<?= e(asset('assets/css/admin.css')) ?>">
+  <link rel="stylesheet" href="<?= e(url('fonts.css.php')) ?>?v=<?= (int)scalar('SELECT COUNT(*) FROM fonts') ?>">
 </head>
 <body class="admin">
 <header class="topbar">

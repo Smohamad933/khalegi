@@ -109,6 +109,10 @@ details[open] .card__summary { margin-bottom: .8rem; }
 .sortable-chosen { box-shadow: 0 0 0 2px var(--gold); border-radius: 8px; }
 .badge { display: inline-block; font-size: .72rem; padding: .05rem .5rem; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-weight: 500; }
 .badge--ok { background: rgba(60,207,145,.15); color: var(--ok); }
+.badge--warn { background: rgba(255,201,107,.15); color: var(--warn); white-space: normal; }
+.font-row { display: flex; flex: 1; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.font-row input, .font-row select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: .3rem .6rem; max-width: 180px; }
+.font-sample { font-size: 1.4rem; padding: .8rem 1rem; border: 1px dashed var(--line); border-radius: 10px; margin-top: .6rem; }
 .member-list, .track-list { list-style: none; margin: 0; padding: .3rem .6rem; }
 .member-row { display: flex; align-items: center; gap: .7rem; padding: .45rem .4rem; border-bottom: 1px dashed var(--line); }
 .member-row:last-child { border-bottom: none; }
