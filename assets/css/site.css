@@ -1,0 +1,359 @@
+/* =====================================================================
+   بروشور الکترونیک کنسرت — استایل صفحه‌ی عمومی
+   هویت بصری پوستر: زمینه‌ی کرم، خطوط قرمز (المان تئاتر)، فیروزه‌ای تذهیب،
+   نارنجی عنوان و طلایی ملایم.
+   فونت: خانواده‌ی انتخابی از پنل (پیش‌فرض abar) با پشتیبان Vazirmatn.
+   ===================================================================== */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../fonts/Vazirmatn-Variable.woff2') format('woff2-variations'),
+       url('../fonts/Vazirmatn-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --bg: #efe6d7;
+  --bg-2: #f6f0e5;
+  --bg-3: #e6dac6;
+  --ink: #2b2420;
+  --ink-dim: #6e625a;
+  --accent: #d3522f;
+  --accent-2: #b8401f;
+  --teal: #2b8ba0;
+  --teal-2: #1f6f80;
+  --line: #a8272c;
+  --gold: #c9a96a;
+  --rule: rgba(168, 39, 44, .28);
+  --rule-soft: rgba(168, 39, 44, .14);
+  --card: rgba(255, 252, 246, .72);
+  --radius: 14px;
+  --font: 'abar', 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+  --container: 1180px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--ink);
+  background: var(--bg);
+  background-image:
+    radial-gradient(1000px 500px at 50% 0%, rgba(255,255,255,.55), transparent 65%),
+    radial-gradient(700px 400px at 100% 60%, rgba(211,82,47,.06), transparent 60%),
+    radial-gradient(700px 400px at 0% 90%, rgba(43,139,160,.07), transparent 60%);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+svg { width: 1.2em; height: 1.2em; fill: currentColor; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; line-height: 1.5; }
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.container { width: min(var(--container), 100% - 2rem); margin-inline: auto; }
+.skip-link { position: absolute; top: -50px; right: 1rem; background: var(--accent); color: #fff; padding: .4rem 1rem; border-radius: 0 0 8px 8px; z-index: 100; }
+.skip-link:focus { top: 0; }
+
+/* ---------- دکمه ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .7rem 1.7rem; border-radius: 999px; font-weight: 700;
+  border: 1.5px solid var(--line); color: var(--line);
+  transition: transform .25s var(--ease), background .25s, color .25s, box-shadow .25s;
+}
+.btn--accent { background: var(--accent); color: #fff; border-color: transparent; box-shadow: 0 10px 28px rgba(211,82,47,.28); }
+.btn--accent:hover { background: var(--accent-2); }
+.btn:hover { transform: translateY(-2px); }
+
+/* ---------- پرنده‌ها ---------- */
+.bird { position: absolute; width: clamp(64px, 9vw, 130px); height: auto; pointer-events: none; z-index: 2; filter: drop-shadow(0 6px 12px rgba(43,139,160,.18)); }
+.bird--hero-l { left: 10%; top: 26%; animation: birdFloat 7s ease-in-out infinite; }
+.bird--hero-r { right: 10%; top: 20%; animation: birdFloat 8s ease-in-out infinite reverse; }
+.bird--section { right: 3%; top: 1.5rem; width: clamp(56px, 7vw, 96px); opacity: .95; }
+.bird--section-l { right: auto; left: 3%; }
+.bird--footer-l { left: 8%; bottom: 3rem; width: clamp(56px, 6vw, 84px); }
+.bird--footer-r { right: 8%; bottom: 5rem; width: clamp(56px, 6vw, 84px); }
+@keyframes birdFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(-2deg); } }
+@media (prefers-reduced-motion: reduce) { .bird { animation: none !important; } }
+
+/* =====================================================================
+   HERO / سرصفحه
+   ===================================================================== */
+.hero {
+  position: relative; min-height: 100svh; display: grid; place-items: center;
+  overflow: hidden; isolation: isolate; padding: 2rem 0 3rem;
+}
+/* المان خطی تئاتر — پس‌زمینه‌ی سرصفحه (مانند پوستر: قاب صحنه بالا، بالکن‌ها در دو طرف) */
+.hero__theatre {
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: min(1130px, 100%); height: auto; z-index: -1; opacity: .55;
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, rgba(0,0,0,.6) 70%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 45%, rgba(0,0,0,.6) 70%, transparent 98%);
+}
+/* حالت عکس پس‌زمینه (اگر از پنل آپلود شود) */
+.hero__media, .hero__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; z-index: -2; }
+.hero--photo::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, var(--bg) 0%, rgba(239,230,215,.86) 30%, rgba(239,230,215,.35) 70%, rgba(239,230,215,.2) 100%); }
+
+.hero__content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: .35rem; padding-top: clamp(9rem, 30vw, 22rem); position: relative; z-index: 1; }
+@media (min-width: 1130px) { .hero__content { padding-top: 22rem; } }
+.hero__logo { width: 84px; height: 84px; object-fit: contain; margin-bottom: .6rem; }
+.hero__tagline { color: var(--line); letter-spacing: .28em; font-size: .8rem; font-weight: 600; margin-bottom: .4rem; }
+.hero__tagline::before, .hero__tagline::after { content: ''; display: inline-block; width: 26px; height: 1px; background: var(--rule); vertical-align: middle; margin: 0 .8rem; }
+.hero__title {
+  font-weight: 900; font-size: clamp(2.2rem, 5.4vw, 3.9rem); line-height: 1.35; letter-spacing: -.01em;
+  color: var(--accent); text-shadow: 0 2px 0 rgba(255,255,255,.5);
+  padding: 0 .3em;
+}
+.hero__subtitle { font-size: clamp(1.05rem, 2.3vw, 1.5rem); color: var(--ink); font-weight: 500; letter-spacing: .12em; }
+.hero__people { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 3rem; margin-top: .9rem; }
+.hero__people span { display: flex; flex-direction: column; align-items: center; line-height: 1.5; }
+.hero__people small { color: var(--ink-dim); font-size: .8rem; letter-spacing: .1em; }
+.hero__people b { font-size: 1.3rem; font-weight: 800; color: var(--ink); }
+.hero__logotype { margin-top: 1.2rem; width: min(420px, 70vw); }
+.hero__logotype img { width: 100%; height: auto; filter: drop-shadow(0 10px 22px rgba(43,139,160,.18)); }
+.hero__notes { margin-top: 1rem; color: var(--ink-dim); font-size: .95rem; line-height: 1.8; }
+.hero__notes p + p { margin-top: .1rem; }
+.hero__meta { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 1.8rem; margin-top: 1.1rem; color: var(--ink); font-size: 1.02rem; font-weight: 600; }
+.hero__meta li { display: inline-flex; align-items: center; gap: .45rem; }
+.hero__meta svg { color: var(--accent); }
+.hero .btn { margin-top: 1.3rem; }
+.hero__scroll {
+  position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--rule); display: grid; place-items: center;
+  color: var(--line); animation: bob 2.2s ease-in-out infinite; background: rgba(255,255,255,.4);
+}
+@keyframes bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 6px); } }
+
+/* ---------- حالت پوستر: خود تصویر پوستر در سرصفحه (مانند سایت نمونه) ---------- */
+.hero--poster { padding: 1.5rem 0 3.5rem; }
+.hero--poster .hero__theatre { opacity: .28; }
+.hero--poster .hero__content { padding-top: clamp(2.5rem, 6vh, 4rem); gap: .6rem; }
+.hero__stage { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; }
+.hero__stage .bird { position: absolute; top: 18%; }
+.hero__stage .bird--hero-l { left: max(0px, calc(50% - min(31vw, 300px) - 140px)); animation: birdFloat 7s ease-in-out infinite; }
+.hero__stage .bird--hero-r { right: max(0px, calc(50% - min(31vw, 300px) - 140px)); animation: birdFloat 8s ease-in-out infinite reverse; }
+.hero__poster { display: block; width: min(600px, 92vw); max-height: 86svh; border-radius: 10px; overflow: hidden; background: #fff; border: 1px solid var(--rule-soft); box-shadow: 0 30px 70px rgba(43,36,32,.28), 0 0 0 10px rgba(255,255,255,.35); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+.hero__poster:hover { transform: translateY(-4px); box-shadow: 0 40px 90px rgba(43,36,32,.34), 0 0 0 10px rgba(255,255,255,.45); }
+.hero__poster img { width: 100%; height: auto; max-height: 86svh; object-fit: contain; }
+.hero__logotype.hero__logotype--sm { width: min(240px, 50vw); margin-top: 1.2rem; }
+.hero--poster .hero__meta { margin-top: .8rem; }
+
+/* =====================================================================
+   NAV / منوی بخش‌ها
+   ===================================================================== */
+.nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(239,230,215,.86); border-block: 1px solid var(--rule); }
+.nav__inner { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.nav a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .7rem .3rem; line-height: 1.35;
+  font-size: .95rem; color: var(--ink-dim); position: relative; transition: color .25s;
+}
+.nav a span:first-child { color: var(--line); font-weight: 700; letter-spacing: .06em; }
+.nav a::after { content: ''; position: absolute; inset-inline: 22%; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--ease); }
+.nav a:hover, .nav a.is-active { color: var(--ink); }
+.nav a:hover::after, .nav a.is-active::after { transform: scaleX(1); }
+.nav a + a { border-inline-start: 1px solid var(--rule-soft); }
+
+/* =====================================================================
+   SECTIONS
+   ===================================================================== */
+.section { padding: clamp(3rem, 7vw, 5.5rem) 0; position: relative; }
+.section--alt { background: linear-gradient(180deg, transparent, rgba(255,255,255,.45) 15%, rgba(255,255,255,.45) 85%, transparent); }
+.section-title {
+  display: flex; align-items: center; justify-content: center; gap: .9rem; margin-bottom: clamp(2rem, 4vw, 3rem);
+  font-weight: 900; font-size: clamp(1.7rem, 3.8vw, 2.6rem); color: var(--accent); line-height: 1.6;
+}
+.section-title__wing { width: clamp(90px, 20vw, 220px); height: auto; aspect-ratio: 220/40; color: var(--teal); flex: none; }
+.section-title__wing:first-child { transform: scaleX(-1); }
+.section-title__wing--flip { transform: none; }
+.section-title span { white-space: nowrap; padding: 0 .2em; }
+
+/* ---------- درباره / پوستر ---------- */
+.about { display: grid; gap: 2rem; align-items: center; max-width: 900px; margin-inline: auto; }
+.about--with-poster { grid-template-columns: minmax(240px, 380px) 1fr; max-width: 1100px; }
+.about__poster { display: block; border-radius: 10px; overflow: hidden; box-shadow: 0 24px 50px rgba(43,36,32,.22); border: 1px solid var(--rule-soft); transition: transform .4s var(--ease); background: #fff; }
+.about__poster:hover { transform: translateY(-4px) rotate(-.4deg); }
+.frame { position: relative; padding: clamp(1.6rem, 4vw, 2.6rem) clamp(1.4rem, 5vw, 3rem); border: 1px solid var(--rule); border-radius: 4px; background: var(--card); text-align: center; font-size: 1.05rem; line-height: 2.1; }
+.frame__title { color: var(--teal); font-size: 1.05rem; letter-spacing: .12em; margin-bottom: .8rem; font-weight: 700; }
+.frame p + p { margin-top: .8rem; }
+.frame__c { position: absolute; width: 60px; height: 60px; color: var(--teal); }
+.frame__c--tl { top: -6px; left: -6px; }
+.frame__c--tr { top: -6px; right: -6px; transform: scaleX(-1); }
+.frame__c--bl { bottom: -6px; left: -6px; transform: scaleY(-1); }
+.frame__c--br { bottom: -6px; right: -6px; transform: scale(-1); }
+
+/* =====================================================================
+   TRACKS / قطعات
+   ===================================================================== */
+.tracks { display: grid; gap: .9rem; max-width: 900px; margin-inline: auto; }
+.track { border: 1px solid var(--rule-soft); border-radius: var(--radius); background: var(--card); overflow: hidden; transition: border-color .3s, box-shadow .3s; }
+.track.is-playing, .track:hover { border-color: var(--rule); box-shadow: 0 12px 34px rgba(43,36,32,.10); }
+.track__head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; padding: 1rem 1.2rem; }
+.track__num {
+  width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  border: 1.5px solid var(--line); color: var(--line); font-weight: 800; font-size: 1.05rem; background: #fff;
+}
+.track__title { font-size: 1.25rem; font-weight: 800; color: var(--ink); }
+.track__meta { display: flex; flex-wrap: wrap; gap: .2rem 1.2rem; font-size: .88rem; color: var(--ink-dim); line-height: 1.7; }
+.track__meta small { color: var(--teal); font-size: .78rem; margin-inline-end: .15rem; font-weight: 700; }
+.track__note { color: var(--accent); }
+.track__actions { display: flex; align-items: center; gap: .4rem; }
+.track__play, .track__toggle, .track__video {
+  width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--rule); background: #fff; display: grid; place-items: center;
+  color: var(--line); transition: background .25s, transform .25s, border-color .25s;
+}
+.track__play { background: var(--accent); color: #fff; border-color: transparent; }
+.track__play:hover { background: var(--accent-2); }
+.track__play:hover, .track__toggle:hover, .track__video:hover { transform: scale(1.06); }
+.track__play svg { width: 1.3em; height: 1.3em; }
+.track__play .i-pause { display: none; }
+.track.is-playing .track__play .i-play { display: none; }
+.track.is-playing .track__play .i-pause { display: block; }
+.track__toggle svg { transition: transform .3s var(--ease); }
+.track__toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.player { display: flex; align-items: center; gap: .8rem; padding: 0 1.2rem .9rem; direction: ltr; }
+.player__time { font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--ink-dim); min-width: 3em; text-align: center; }
+.player__seek { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--accent) var(--p, 0%), rgba(43,36,32,.15) var(--p, 0%)); outline: none; }
+.player__seek::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+.player__seek::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; }
+.player__dl { color: var(--line); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--rule); background: #fff; }
+.player__dl:hover { background: var(--bg-3); }
+
+.track__lyrics { border-top: 1px dashed var(--rule); background: rgba(255,255,255,.5); }
+.track__lyrics-inner { padding: 1.2rem 1.4rem 1.5rem; text-align: center; font-size: 1.02rem; line-height: 2.2; }
+.track__lyrics h4 { color: var(--teal); font-size: .85rem; font-weight: 700; letter-spacing: .1em; margin-bottom: .6rem; }
+.track__lyrics p:nth-child(even) { color: var(--ink-dim); }
+
+/* =====================================================================
+   ORCHESTRA / اعضای ارکستر
+   ===================================================================== */
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; }
+.group { position: relative; padding: 1.4rem 1.2rem 1.1rem; border-radius: var(--radius); background: var(--card); border: 1px solid var(--rule-soft); text-align: center; transition: transform .3s var(--ease), border-color .3s, box-shadow .3s; }
+.group:hover { transform: translateY(-3px); border-color: var(--rule); box-shadow: 0 12px 30px rgba(43,36,32,.08); }
+.group--wide { grid-column: 1 / -1; }
+.group__title { font-size: 1.05rem; color: var(--accent); font-weight: 800; position: relative; display: inline-block; padding: 0 .4rem; }
+.group__title::before, .group__title::after { content: ''; position: absolute; top: 50%; width: 22px; height: 1px; background: var(--rule); }
+.group__title::before { right: 100%; }
+.group__title::after { left: 100%; }
+.group__subtitle { color: var(--ink-dim); font-size: .85rem; margin-top: .1rem; }
+.group__list { margin-top: .8rem; display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem .9rem; }
+.member { display: inline-flex; flex-direction: column; align-items: center; font-size: 1rem; line-height: 1.6; font-weight: 500; }
+.member--photo { padding: .4rem .2rem; }
+.member__photo { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid var(--teal); margin-bottom: .4rem; }
+.member__role { color: var(--ink-dim); font-size: .78rem; font-weight: 400; }
+.group__divider { width: 60%; height: auto; aspect-ratio: 400/30; color: var(--teal); margin: .9rem auto 0; opacity: .9; }
+.group--wide .group__list { gap: .4rem 1.4rem; }
+.group--wide .member { font-size: 1.02rem; }
+
+/* =====================================================================
+   CREW / عوامل اجرایی
+   ===================================================================== */
+.crew { max-width: 900px; margin-inline: auto; border-top: 1px solid var(--rule); }
+.crew__row { display: grid; grid-template-columns: minmax(150px, 34%) 1fr; gap: .6rem 1.5rem; padding: .95rem .6rem; border-bottom: 1px solid var(--rule-soft); align-items: baseline; }
+.crew__row:hover { background: rgba(255,255,255,.5); }
+.crew__role { font-size: .98rem; color: var(--line); font-weight: 800; display: flex; flex-direction: column; }
+.crew__role small { color: var(--ink-dim); font-weight: 400; font-size: .8rem; }
+.crew__names { display: flex; flex-wrap: wrap; gap: .25rem 1.4rem; font-weight: 500; }
+.crew__names small { color: var(--ink-dim); }
+
+/* =====================================================================
+   GALLERY / گالری
+   ===================================================================== */
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); direction: ltr; }
+.marquee__track { display: flex; gap: 1rem; width: max-content; animation: marquee var(--marquee-duration, 60s) linear infinite; padding-block: .5rem; }
+.marquee:hover .marquee__track, .marquee.is-paused .marquee__track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee__item { flex: none; width: clamp(240px, 32vw, 420px); aspect-ratio: 16/10; border-radius: 10px; overflow: hidden; border: 1px solid var(--rule-soft); box-shadow: 0 12px 30px rgba(43,36,32,.16); position: relative; background: #fff; }
+.marquee__item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.marquee__item:hover img { transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) { .marquee__track { animation: none; overflow-x: auto; } }
+
+.lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(43,36,32,.92); display: grid; place-items: center; padding: 2rem; backdrop-filter: blur(6px); }
+.lightbox figure { margin: 0; max-width: min(1200px, 100%); text-align: center; }
+.lightbox img { max-height: 84vh; max-width: 100%; margin-inline: auto; border-radius: 8px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.lightbox figcaption { color: #e8dfd0; margin-top: .8rem; font-size: .95rem; }
+.lightbox__close, .lightbox__nav { position: absolute; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; display: grid; place-items: center; }
+.lightbox__close { top: 1rem; left: 1rem; }
+.lightbox__nav { top: 50%; transform: translateY(-50%); }
+.lightbox__nav--prev { right: 1rem; }
+.lightbox__nav--next { left: 1rem; transform: translateY(-50%) scaleX(-1); }
+.lightbox__close svg, .lightbox__nav svg { width: 1.4em; height: 1.4em; }
+
+/* =====================================================================
+   FOOTER
+   ===================================================================== */
+.footer { position: relative; text-align: center; padding: 3rem 0 4rem; color: var(--ink-dim); font-size: .9rem; overflow: hidden; }
+.footer__divider { width: min(420px, 80%); height: auto; aspect-ratio: 400/30; color: var(--teal); margin: 0 auto 1.5rem; }
+.footer__logo { width: 64px; height: 64px; object-fit: contain; margin: 0 auto .8rem; }
+.footer__logotype { width: min(220px, 50vw); margin: 0 auto .6rem; }
+.footer__title { font-size: 1.25rem; color: var(--accent); font-weight: 800; }
+.footer__social { display: flex; justify-content: center; gap: .8rem; margin: .8rem 0; }
+.footer__social a { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--rule); display: grid; place-items: center; color: var(--line); transition: background .25s; background: #fff; }
+.footer__social a:hover { background: var(--bg-3); }
+.footer__note { margin-top: .8rem; }
+.footer__links { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1rem; margin-top: 1.5rem; }
+.footer__admin { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .9rem; border: 1px solid var(--rule-soft); border-radius: 999px; font-size: .78rem; color: var(--ink-dim); background: rgba(255,255,255,.4); transition: color .25s, border-color .25s, background .25s; }
+.footer__admin svg { width: 1em; height: 1em; }
+.footer__admin:hover { color: var(--accent); border-color: var(--rule); background: #fff; }
+
+.to-top { position: fixed; bottom: 1.2rem; left: 1.2rem; width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 1px solid var(--rule); color: var(--line); display: grid; place-items: center; z-index: 40; opacity: 0; pointer-events: none; transform: translateY(10px); transition: .3s var(--ease); box-shadow: 0 6px 18px rgba(43,36,32,.12); }
+.to-top svg { transform: rotate(180deg); }
+.to-top.is-visible { opacity: 1; pointer-events: auto; transform: none; }
+
+/* =====================================================================
+   انیمیشن ظاهر شدن
+   ===================================================================== */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+@media (max-width: 900px) {
+  .about--with-poster { grid-template-columns: 1fr; }
+  .about__poster { max-width: 380px; margin-inline: auto; }
+}
+@media (max-width: 767px) {
+  body { font-size: 15px; }
+  .hero { min-height: 100svh; padding-bottom: 4rem; }
+  .hero__theatre { width: 150%; max-width: none; top: 0; opacity: .45; }
+  .hero__content { padding-top: 40vw; }
+  .hero__title { font-size: clamp(2rem, 9.5vw, 2.8rem); }
+  .hero__logotype { width: min(360px, 84vw); }
+  .hero--poster .hero__content { padding-top: 3.5rem; }
+  .hero__stage .bird { width: 58px; top: -30px; }
+  .hero__stage .bird--hero-l { left: 2%; }
+  .hero__stage .bird--hero-r { right: 2%; }
+  .hero__poster { width: 94vw; max-height: none; }
+  .hero__poster img { max-height: none; }
+  .hero__logotype.hero__logotype--sm { width: 42vw; margin-top: .8rem; }
+  .bird--hero-l { left: 2%; top: 7%; }
+  .bird--hero-r { right: 2%; top: 5%; }
+  .bird--section { display: none; }
+  .nav a { font-size: .82rem; padding: .55rem .2rem; }
+  .track__head { grid-template-columns: auto 1fr; }
+  .track__actions { grid-column: 1 / -1; justify-content: flex-end; padding-top: .2rem; }
+  .track__num { width: 38px; height: 38px; font-size: .95rem; }
+  .crew__row { grid-template-columns: 1fr; gap: .15rem; }
+  .crew__names { justify-content: flex-start; }
+  .frame__c { width: 46px; height: 46px; }
+  .lightbox { padding: 1rem; }
+  .lightbox__nav { width: 40px; height: 40px; }
+  .footer { padding-bottom: 5.5rem; }
+  .bird--footer-l, .bird--footer-r { width: 48px; bottom: auto; top: .4rem; opacity: .9; }
+  .bird--footer-l { left: 4%; }
+  .bird--footer-r { right: 4%; }
+  .footer__links { flex-direction: column; align-items: center; }
+  .footer__admin { font-size: .82rem; padding: .45rem 1.1rem; }
+}
